@@ -1,31 +1,20 @@
-import open from "open";
-import { TwitterApi, TweetV2, TwitterApiReadWrite } from "twitter-api-v2";
-import { appKey, appKeySecret, oauthBearer } from "../config";
-import { callback } from "../cosntants";
+import { TwitterApi, TweetV2 } from "twitter-api-v2";
+import {
+  accessToken,
+  accessTokenSecret,
+  appKey,
+  appKeySecret,
+} from "../config";
 
-let client: TwitterApi;
+const client: TwitterApi = new TwitterApi({
+  appKey: appKey,
+  appSecret: appKeySecret,
+  accessToken: accessToken,
+  accessSecret: accessTokenSecret,
+});
 
 export const configureTwitterClient = async () => {
-  const consumerClient: TwitterApiReadWrite = new TwitterApi({
-    appKey: appKey,
-    appSecret: appKeySecret,
-  });
-  const callbackResponse = await consumerClient.generateAuthLink(callback, {
-    linkMode: "authorize",
-  });
-  const tempClient = new TwitterApi({
-    appKey: appKey,
-    appSecret: appKeySecret,
-    accessToken: callbackResponse.oauth_token,
-    accessSecret: callbackResponse.oauth_token_secret,
-  });
-  const { accessToken, accessSecret } = await tempClient.login(oauthBearer);
-  client = new TwitterApi({
-    appKey: appKey,
-    appSecret: appKeySecret,
-    accessToken: accessToken,
-    accessSecret: accessSecret,
-  });
+  await client.appLogin();
 };
 
 export const observeTweet = async (
@@ -34,9 +23,11 @@ export const observeTweet = async (
 ) => {
   const user = await client.v2.userByUsername(userName);
   const userId = user.data.id;
+  console.log(userId);
   const streams = await client.v2.userTimeline(userId);
   const allTweets = await Promise.all(streams);
   for (const tweet of allTweets) {
+    console.log(tweet);
     onTweet(tweet);
   }
 };

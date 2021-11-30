@@ -16,7 +16,7 @@ const main = async () => {
   await observeTweet(timelineUserName, async (tweet) => {
     const shouldDelete = tweet.text.startsWith("[auto-delete]");
     if (shouldDelete) {
-      await dispatch(oneHour);
+      console.log("auto-delete");
       await deleteTweet(tweet);
       console.log("OK");
     }
