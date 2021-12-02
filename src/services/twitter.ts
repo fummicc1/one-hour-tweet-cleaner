@@ -1,37 +1,50 @@
-import { TwitterApi, TweetV2 } from "twitter-api-v2";
-import {
-  accessToken,
-  accessTokenSecret,
-  appKey,
-  appKeySecret,
-} from "../config";
+import axios from "axios";
+import { appKey, callbackURL } from "../config";
+import { AccessTokenResponse, RequestTokenResponse, Tweet } from "../requests";
 
-const client: TwitterApi = new TwitterApi({
-  appKey: appKey,
-  appSecret: appKeySecret,
-  accessToken: accessToken,
-  accessSecret: accessTokenSecret,
+const client = axios.create({
+  baseURL: "https://api.twitter.com",
 });
 
-export const configureTwitterClient = async () => {
-  await client.appLogin();
+let oauthToken = "";
+let oauthTokenSecret = "";
+
+export const startConfigureTwitterClient = async () => {
+  const requestTokenResponse = await client.post<RequestTokenResponse>(
+    "/oauth/request_token",
+    {
+      oauth_callback: callbackURL,
+      oauth_consumer_key: appKey,
+    }
+  );
+  oauthToken = requestTokenResponse.data.oauth_token;
+  oauthTokenSecret = requestTokenResponse.data.oauth_token_secret;
+  await client.get("/oauth/authorize");
+};
+
+export const checkOauth = (oauth: string): boolean => {
+  return oauth === oauthToken;
+};
+
+export const setupAccessToken = async (verifier: string) => {
+  const response = await client.post<AccessTokenResponse>(
+    "/oauth/access_token",
+    {
+      oauth_consumer_key: appKey,
+      oauth_token: oauthToken,
+      oauth_verifier: verifier,
+    }
+  );
+  const data = response.data;
+  await client.post("/statuses/update.json", {
+    oauth_consumer_key: appKey,
+    oauth_token: data.oauth_token,
+  });
 };
 
 export const observeTweet = async (
   userName: string,
-  onTweet: (tweet: TweetV2) => Promise<void>
-) => {
-  const user = await client.v2.userByUsername(userName);
-  const userId = user.data.id;
-  console.log(userId);
-  const streams = await client.v2.userTimeline(userId);
-  const allTweets = await Promise.all(streams);
-  for (const tweet of allTweets) {
-    console.log(tweet);
-    onTweet(tweet);
-  }
-};
+  onTweet: (tweet: Tweet) => Promise<void>
+) => {};
 
-export const deleteTweet = async (tweet: TweetV2) => {
-  await client.v2.deleteTweet(tweet.id);
-};
+export const deleteTweet = async (tweet: Tweet) => {};
