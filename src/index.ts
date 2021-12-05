@@ -16,16 +16,11 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.get("/callback", async (req, res) => {
+app.get("/twitter/callback", async (req, res) => {
   await onCallback(req, res);
 });
 
-app.listen(3000, () => {
-  console.log("Server is running on 3000");
-});
-
-const main = async () => {
-  await startConfigureTwitterClient();
+app.get("twitter/observe", async (req, res) => {
   await observeTweet(timelineUserName, async (tweet) => {
     const shouldDelete = tweet.text.startsWith("[auto-delete]");
     if (shouldDelete) {
@@ -34,6 +29,14 @@ const main = async () => {
       console.log("OK");
     }
   });
-};
+  res.status(200).send("OK");
+});
 
-main();
+app.get("/twitter/configure", async (req, res) => {
+  await startConfigureTwitterClient();
+  res.status(200).send("OK");
+});
+
+app.listen(3000, () => {
+  console.log("Server is running on 3000");
+});
