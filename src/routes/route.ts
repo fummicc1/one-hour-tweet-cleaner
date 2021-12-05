@@ -14,4 +14,5 @@ export const onCallback = async (
   const isSame = checkOauth(oauthToken);
   console.log(isSame);
   await setupAccessToken(oauthVerifier);
+  res.status(200).send("OK");
 };

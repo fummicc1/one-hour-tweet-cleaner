@@ -1,25 +1,36 @@
 import axios from "axios";
-import { appKey, callbackURL } from "../config";
+import { appKey, appKeySecret, callbackURL } from "../config";
 import { AccessTokenResponse, RequestTokenResponse, Tweet } from "../requests";
+import { OAuth } from "oauth";
+import open from "open";
 
 const client = axios.create({
   baseURL: "https://api.twitter.com",
 });
+let accessToken = "";
+let accessTokenSecret = "";
+
+const oauth = new OAuth(
+  "https://api.twitter.com/oauth/request_token",
+  "https://api.twitter.com/oauth/access_token",
+  appKey,
+  appKeySecret,
+  "1.0A",
+  callbackURL,
+  "HMAC-SHA1"
+);
 
 let oauthToken = "";
 let oauthTokenSecret = "";
 
 export const startConfigureTwitterClient = async () => {
-  const requestTokenResponse = await client.post<RequestTokenResponse>(
-    "/oauth/request_token",
-    {
-      oauth_callback: callbackURL,
-      oauth_consumer_key: appKey,
+  oauth.getOAuthRequestToken(
+    (err, _oauthToken, _oauthTokenSecret, parseQueryString) => {
+      oauthToken = _oauthToken;
+      oauthTokenSecret = _oauthTokenSecret;
+      open(`https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}`);
     }
   );
-  oauthToken = requestTokenResponse.data.oauth_token;
-  oauthTokenSecret = requestTokenResponse.data.oauth_token_secret;
-  await client.get("/oauth/authorize");
 };
 
 export const checkOauth = (oauth: string): boolean => {
@@ -27,19 +38,15 @@ export const checkOauth = (oauth: string): boolean => {
 };
 
 export const setupAccessToken = async (verifier: string) => {
-  const response = await client.post<AccessTokenResponse>(
-    "/oauth/access_token",
-    {
-      oauth_consumer_key: appKey,
-      oauth_token: oauthToken,
-      oauth_verifier: verifier,
+  oauth.getOAuthAccessToken(
+    oauthToken,
+    oauthTokenSecret,
+    verifier,
+    (err, _token, _tokenSecret, parseQueryString) => {
+      accessToken = _token;
+      accessTokenSecret = _tokenSecret;
     }
   );
-  const data = response.data;
-  await client.post("/statuses/update.json", {
-    oauth_consumer_key: appKey,
-    oauth_token: data.oauth_token,
-  });
 };
 
 export const observeTweet = async (

@@ -25,10 +25,12 @@
   "homepage": "https://github.com/fummicc1/one-hour-tweet-cleaner#readme",
   "dependencies": {
     "@types/express-session": "^1.17.4",
+    "@types/oauth": "^0.9.1",
     "axios": "^0.24.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
+    "oauth": "^0.9.15",
     "open": "^8.4.0"
   },
   "devDependencies": {
