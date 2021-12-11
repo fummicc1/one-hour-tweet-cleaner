@@ -1,4 +1,5 @@
 import * as express from "express";
+import { PORT } from "./config";
 import { oneHour, timelineUserName } from "./cosntants";
 import { onCallback } from "./routes/route";
 import { dispatch } from "./services/dispatch";
@@ -38,6 +39,6 @@ app.get("/twitter/configure", async (req, res) => {
   res.status(200).send("OK");
 });
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log("Server is running on 3000");
 });
