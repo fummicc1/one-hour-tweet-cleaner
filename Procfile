@@ -1,1 +1,1 @@
-web: yarn run setup
+web: yarn run setup && node ./dist/index.js
