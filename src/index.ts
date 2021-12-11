@@ -22,7 +22,8 @@ app.get("/twitter/callback", async (req, res) => {
 
 app.get("/twitter/check", async (req, res) => {
   await checkTweet(timelineUserName, async (tweet) => {
-    const shouldDelete = tweet.text.startsWith("[auto-delete]");
+    console.log("onTweet", tweet);
+    const shouldDelete = tweet.text.endsWith("...");
     if (shouldDelete) {
       console.log("auto-delete");
       await deleteTweet(tweet);

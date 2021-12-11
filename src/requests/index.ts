@@ -14,7 +14,17 @@ export interface AccessTokenResponse {
 }
 
 export interface UserResponse {
+  data: User[];
+}
+
+export interface User {
   id: string;
+  name: string;
+  username: string;
+}
+
+export interface TweetResponse {
+  data: Tweet[];
 }
 
 export interface Tweet {

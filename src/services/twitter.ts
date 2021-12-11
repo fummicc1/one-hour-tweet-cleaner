@@ -1,5 +1,5 @@
 import { appKey, appKeySecret, callbackURL } from "../config";
-import { Tweet, UserResponse } from "../requests";
+import { Tweet, TweetResponse, UserResponse } from "../requests";
 import { OAuth } from "oauth";
 import open from "open";
 
@@ -24,6 +24,7 @@ export const startConfigureTwitterClient = async () => {
     (err, _oauthToken, _oauthTokenSecret, parseQueryString) => {
       if (err) {
         console.error(err);
+        return;
       }
       oauthToken = _oauthToken;
       oauthTokenSecret = _oauthTokenSecret;
@@ -63,7 +64,9 @@ export const checkTweet = async (
       }
       console.log("data", data);
       const response: UserResponse = unwrapResponse(data);
-      const id = response.id;
+      console.info("UserResponse", response);
+      const id = response.data[0].id;
+      console.info("User Id", id);
       oauth.get(
         `https://api.twitter.com/2/users/${id}/tweets`,
         accessToken,
@@ -73,8 +76,9 @@ export const checkTweet = async (
             console.error(e);
             return;
           }
-          const tweets: Tweet[] = unwrapResponse(data);
-          for (const tweet of tweets) {
+
+          const response: TweetResponse = unwrapResponse(data);
+          for (const tweet of response.data) {
             onTweet(tweet);
           }
         }
@@ -93,4 +97,17 @@ const unwrapResponse = <Response>(
   return JSON.parse(data);
 };
 
-export const deleteTweet = async (tweet: Tweet) => {};
+export const deleteTweet = async (tweet: Tweet) => {
+  oauth.delete(
+    `https://api.twitter.com/2/tweets/${tweet.id}`,
+    accessToken,
+    accessTokenSecret,
+    (e, data, res) => {
+      if (e) {
+        console.error("Error", e);
+        return;
+      }
+      console.log("Success Deleting tweet");
+    }
+  );
+};
