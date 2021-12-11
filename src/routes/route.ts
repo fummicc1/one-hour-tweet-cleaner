@@ -1,5 +1,4 @@
 import * as express from "express";
-import { AuthorizeCallbackData } from "../requests";
 import { checkOauth, setupAccessToken } from "../services/twitter";
 
 export const onCallback = async (

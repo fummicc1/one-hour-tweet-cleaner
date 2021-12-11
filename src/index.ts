@@ -1,8 +1,7 @@
 import * as express from "express";
 import { PORT } from "./config";
-import { oneHour, timelineUserName } from "./cosntants";
+import { timelineUserName } from "./cosntants";
 import { onCallback } from "./routes/route";
-import { dispatch } from "./services/dispatch";
 import {
   startConfigureTwitterClient,
   deleteTweet,

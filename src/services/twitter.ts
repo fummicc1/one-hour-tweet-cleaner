@@ -1,10 +1,16 @@
-import { appKey, appKeySecret, callbackURL } from "../config";
-import { Tweet, TweetResponse, UserResponse } from "../requests";
+import {
+  appKey,
+  appKeySecret,
+  callbackURL,
+  defaultAccessToken,
+  defaultAccessTokenSecret,
+} from "../config";
+import { Tweet, TweetResponse, UserResponse } from "../models";
 import { OAuth } from "oauth";
 import open from "open";
 
-let accessToken = "";
-let accessTokenSecret = "";
+let accessToken = defaultAccessToken;
+let accessTokenSecret = defaultAccessTokenSecret;
 
 const oauth = new OAuth(
   "https://api.twitter.com/oauth/request_token",
