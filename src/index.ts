@@ -5,7 +5,7 @@ import { dispatch } from "./services/dispatch";
 import {
   startConfigureTwitterClient,
   deleteTweet,
-  observeTweet,
+  checkTweet,
 } from "./services/twitter";
 
 const app = express.default();
@@ -20,8 +20,8 @@ app.get("/twitter/callback", async (req, res) => {
   await onCallback(req, res);
 });
 
-app.get("twitter/observe", async (req, res) => {
-  await observeTweet(timelineUserName, async (tweet) => {
+app.get("/twitter/check", async (req, res) => {
+  await checkTweet(timelineUserName, async (tweet) => {
     const shouldDelete = tweet.text.startsWith("[auto-delete]");
     if (shouldDelete) {
       console.log("auto-delete");

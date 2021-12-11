@@ -13,6 +13,11 @@ export interface AccessTokenResponse {
   oauth_token_secret: string;
 }
 
+export interface UserResponse {
+  id: string;
+}
+
 export interface Tweet {
+  id: string;
   text: string;
 }

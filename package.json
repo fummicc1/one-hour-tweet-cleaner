@@ -31,7 +31,8 @@
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "oauth": "^0.9.15",
-    "open": "^8.4.0"
+    "open": "^8.4.0",
+    "postgres": "^1.0.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",

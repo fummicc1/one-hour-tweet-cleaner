@@ -1,12 +1,8 @@
-import axios from "axios";
 import { appKey, appKeySecret, callbackURL } from "../config";
-import { AccessTokenResponse, RequestTokenResponse, Tweet } from "../requests";
+import { Tweet, UserResponse } from "../requests";
 import { OAuth } from "oauth";
 import open from "open";
 
-const client = axios.create({
-  baseURL: "https://api.twitter.com",
-});
 let accessToken = "";
 let accessTokenSecret = "";
 
@@ -26,6 +22,9 @@ let oauthTokenSecret = "";
 export const startConfigureTwitterClient = async () => {
   oauth.getOAuthRequestToken(
     (err, _oauthToken, _oauthTokenSecret, parseQueryString) => {
+      if (err) {
+        console.error(err);
+      }
       oauthToken = _oauthToken;
       oauthTokenSecret = _oauthTokenSecret;
       open(`https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}`);
@@ -49,9 +48,49 @@ export const setupAccessToken = async (verifier: string) => {
   );
 };
 
-export const observeTweet = async (
+export const checkTweet = async (
   userName: string,
   onTweet: (tweet: Tweet) => Promise<void>
-) => {};
+) => {
+  oauth.get(
+    `https://api.twitter.com/2/users/by?usernames=${userName}`,
+    accessToken,
+    accessTokenSecret,
+    (e, data, res) => {
+      if (e) {
+        console.error(e);
+        return;
+      }
+      console.log("data", data);
+      const response: UserResponse = unwrapResponse(data);
+      const id = response.id;
+      oauth.get(
+        `https://api.twitter.com/2/users/${id}/tweets`,
+        accessToken,
+        accessTokenSecret,
+        (e, data, res) => {
+          if (e) {
+            console.error(e);
+            return;
+          }
+          const tweets: Tweet[] = unwrapResponse(data);
+          for (const tweet of tweets) {
+            onTweet(tweet);
+          }
+        }
+      );
+    }
+  );
+};
+
+const unwrapResponse = <Response>(
+  data: string | Buffer | undefined
+): Response => {
+  if (typeof data !== "string") {
+    console.error("Invalid data", data);
+    throw new Error("Invalid Data");
+  }
+  return JSON.parse(data);
+};
 
 export const deleteTweet = async (tweet: Tweet) => {};
